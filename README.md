@@ -5,6 +5,8 @@
 
 ##### Aplicación desarrollada con Swift 5 con soporte a partir de iOS 13.
 
+- Swift 5.2
+- iOS 13+
 - Soporta Portrait, Landscape left, Lanscape Right
 - Guarda información en dispositivo para cuando no se tenga internet
 - Permite la busqueda de información consumiendo un servicio (AlamoFire y object mapper)
