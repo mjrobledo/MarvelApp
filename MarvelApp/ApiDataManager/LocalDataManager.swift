@@ -16,16 +16,18 @@ class LocalDataManager {
     
     /// This method saves the information on the device
     /// - Parameter result: Results type array
-    func saveLastResult(result: [Results]) {
+    func saveLastResult(result: [SuperHero]) {
         UserDefaults.standard.set(result.toJSON(), forKey: "data")
     }
 
-    func getResult() -> [Results] {
-        var result = [Results]()
+    func getResult() -> [SuperHero] {
+        var result = [SuperHero]()
         if let data = UserDefaults.standard.array(forKey: "data") as? [[String: Any]] {
             print(data)
             for item in data {
-                result.append(Results(JSON: item)!)
+                if let json = SuperHero(JSON: item) {
+                    result.append(json)
+                }
             }
         }
         return result

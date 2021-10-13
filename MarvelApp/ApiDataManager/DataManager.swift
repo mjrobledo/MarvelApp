@@ -16,7 +16,7 @@ import ObjectMapper
 import UIKit
 
 
-class HomeManagerConection {
+class DataManager {
    
     
     /// Method in charge of obtaining the information of the service

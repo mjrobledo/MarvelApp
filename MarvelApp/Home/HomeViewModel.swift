@@ -14,28 +14,48 @@ import Foundation
 
 
 class HomeViewModel {
-    private weak var view: HomeView?
-    private weak var router: HomeRouter?
+    weak var view: HomeViewProtocol?
+    var router: HomeRouterProtocol?     
     
-    private var manager = HomeManagerConection()
-    private var localManager = LocalDataManager()
+    private var manager = DataManager()
+    private var localManager = LocalDataManager() 
     
     /// The search result is assigned to you
-    var items = [Results]()
+    var items: [SuperHero]! = []
     
     var offset = 0
-    
-    func bind(view: HomeView, router: HomeRouter) {
-        self.view = view
-        self.router = router
-        self.router?.setSourceView(view)
-    }    
-    
+     
+    /// Method in charge of obtaining the information of the service
+    private func getContentToApi() {
+        view?.showLoader()
+        var request = RequestModel()
+        request.offset = offset
+        manager.getContent(request: request, completion: { (response) in
+            self.view?.hideLoader()
+            if let data = response?.data?.results {
+                if !data.isEmpty {
+                    self.items = data.map { (result) -> SuperHero in
+                        return SuperHero(id: result.id ?? 0, name: result.name ?? "", description: result.description ?? "", path: result.thumbnail?.path ?? "", extensionFile: result.thumbnail?.extensionFile ?? "")
+                    }
+                    self.view?.reloadTable()
+                    self.localManager.saveLastResult(result: self.items)
+                    self.offset = self.offset + self.items.count
+                }
+            } else {
+                self.view?.alert(message: Constants.Text.noResultsFound)
+            }
+        })
+    }
+}
+
+extension HomeViewModel: HomePresenterProtocol {
     func viewDidLoad() {
-        self.view?.title = Constants.Text.titleHome
         self.getContent()
     }
-     
+    
+    func openDetail(item: SuperHero) {
+        router?.openDetail(view: self.view!, item: item)
+    }
     
     /// Validate if you have internet to obtain local or service data
     func getContent() {
@@ -46,31 +66,31 @@ class HomeViewModel {
             self.view?.reloadTable()
         }
     }
-    
-    
-    /// Method in charge of obtaining the information of the service
-    private func getContentToApi() {
-        view?.showIndicator()
-        var request = RequestModel()
-        request.offset = offset
-        manager.getContent(request: request, completion: { (response) in
-            self.view?.hideIndicator()
-            if let data = response?.data?.results {
-                if !data.isEmpty {
-                    self.items.append(contentsOf: data)
-                    self.view?.reloadTable()
-                    self.localManager.saveLastResult(result: self.items)
-                    self.offset = self.offset + self.items.count
-                }
-            } else {
-                self.view?.alert(message: Constants.Text.noResultsFound)
-            }
-        })
-    }
-    
-    
-    func openDetail(item: Results) {
-        router?.openDetailView(item: item)
-    }
 }
 
+// MARK: - Protocols
+protocol HomeViewProtocol: class {
+    // VIEWMODEL -> VIEW
+    var viewModel: HomePresenterProtocol? { get set }
+        
+    func showLoader()
+    func hideLoader()
+    func reloadTable()
+    func alert(message: String)
+}
+
+protocol HomePresenterProtocol: class {
+    // VIEW -> VIEWMODEL
+    var view: HomeViewProtocol? { get set }
+    var router: HomeRouterProtocol? { get set }
+    var items: [SuperHero]! { get set }
+    
+    func viewDidLoad()
+    func openDetail(item: SuperHero)
+    func getContent()
+}
+
+protocol HomeRouterProtocol: class {
+    // VIEWMODEL -> Router
+    func openDetail(view: HomeViewProtocol, item: SuperHero)    
+}

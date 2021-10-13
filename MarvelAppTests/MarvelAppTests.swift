@@ -24,9 +24,8 @@ class MarvelAppTests: XCTestCase {
     }
     
     
-    func testApiContent() throws {
-        
-        let manager = HomeManagerConection()
+    func testApiContent() throws {        
+        let manager = DataManager()
         var req = RequestModel()
         req.offset = 0
         req.limit = 0
@@ -38,7 +37,50 @@ class MarvelAppTests: XCTestCase {
             }
         }
     }
+    
+    func testResultServiceLimit10() {
+        var results:[Results]?
+        let manager = DataManager()
+        var req = RequestModel()
+        req.offset = 0
+        req.limit = 30
+        let expectations = expectation(description: "Test With Limit 30")
+        manager.getContent(request: req) { (response) in
+            print()
+            results = response?.data?.results
+            expectations.fulfill()
+        }
+           
+        
+        waitForExpectations(timeout: 10) { (error) in
+            XCTAssertNotNil(results)
+            XCTAssertFalse(results!.isEmpty)
+            XCTAssertEqual(results!.count, 30)
+        }
+    }
 
+    func testValidCharacterId() {
+        let expectations = expectation(description: "Valid CharacterId")
+        var result:Results?
+        
+        let manager = DataManager()
+        let request = RequestModel()
+        manager.getContent(characterId: 1010755, request: request) { (response) in
+            if let resultData = response?.data?.results?.first {
+                result = resultData
+                expectations.fulfill()
+            } else {
+                XCTAssertFalse(result == nil)
+            }
+        }
+                
+        waitForExpectations(timeout: 10) { (error) in
+            XCTAssertFalse(result == nil)
+            XCTAssertEqual(result?.id!, 1010755)
+        }
+    }
+    
+    
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
         self.measure {

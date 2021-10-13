@@ -11,6 +11,8 @@
 
 
 import XCTest
+ 
+
 
 class MarvelAppUITests: XCTestCase {
 
@@ -32,6 +34,7 @@ class MarvelAppUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
+        app.tables/*@START_MENU_TOKEN@*/.cells.staticTexts["Abomination (Emil Blonsky)"]/*[[".cells.staticTexts[\"Abomination (Emil Blonsky)\"]",".staticTexts[\"Abomination (Emil Blonsky)\"]"],[[[-1,1],[-1,0]]],[1]]@END_MENU_TOKEN@*/.tap()
         // Use recording to get started writing UI tests.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }

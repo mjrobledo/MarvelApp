@@ -13,6 +13,8 @@
 import UIKit
 
 class DetailView: UIViewController {
+    var viewModel: DetailPresenterProtocol?
+    
     @IBOutlet weak var viewUrls: UIView!
     @IBOutlet weak var viewWiki: UIView!
     @IBOutlet weak var viewDetail: UIView!
@@ -31,20 +33,14 @@ class DetailView: UIViewController {
     @IBOutlet weak var lblEvents: UILabel!
     
     
-    var result: Results!
-    
-    let router = DetailRouter()
-    let viewModel = DetailViewModel()
+    var result: SuperHero!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.bind(view: self, router: router)
         self.setUp()
         
         DispatchQueue.main.async {
-            if let characterID = self.result.id {
-                self.viewModel.getCharacterID(characterId: characterID)
-            }
+            self.viewModel!.getCharacterID(characterId: self.result.id) 
         }
     }
     
@@ -56,27 +52,38 @@ class DetailView: UIViewController {
         lblDescription.text = result?.description
         // Do any additional setup after loading the view.
         
-        let imagePath = result.thumbnail?.path ?? ""
-        let imagePathExtension = result.thumbnail?.extensionFile ?? ""
+        let imagePath = result.path
+        let imagePathExtension = result.extensionFile
         
         imgAvatar.load(url: imagePath, size: .square_medium, mime: imagePathExtension, completion: nil)
     }
     
     @IBAction func back(_ sender: Any) {
-        self.dismiss(animated: true, completion: nil)
+        viewModel!.back()
     }
     
     @IBAction func goToLink(_ sender: UIButton) {
         if let typeLink = TypeLink(rawValue: sender.tag) {
-            viewModel.openLink(link: typeLink)
+            viewModel!.openLink(link: typeLink)
         }
     }
-    
-    
+        
 }
 
 // MARK: - Functions Output viewmodel
-extension DetailView {
+extension DetailView: DetailViewProtocol {
+    func showLoader() {
+        self.showIndicator()
+    }
+    
+    func hideLoader() {
+        self.hideIndicator()
+    }
+    
+    func alert(title: String, message: String) {
+        self.simpleAlert(title: title, message: message)
+    }
+    
     
     func setCopyright(copyright: String) {
         lblCopyright.text = copyright

@@ -30,14 +30,18 @@ class HomeCell: UITableViewCell {
     
     /// This method is responsible for filling the cell with the information of a Result
     /// - Parameter item: topo Results object obtained from the service
-    func loadCell(item: Results) {
+    func loadCell(item: SuperHero) {
         lblTitle.text = item.name
-        lblDescription.text = item.description ?? "" 
+        lblDescription.text = item.description
         
-        let imagePath = item.thumbnail?.path ?? ""
-        let imagePathExtension = item.thumbnail?.extensionFile ?? ""        
-        imgAvatar.load(url: imagePath, size: .square_medium, mime: imagePathExtension, completion: nil)
+        if !item.path.isEmpty {
+            let imagePath = item.path
+            let imagePathExtension = item.extensionFile
+            imgAvatar.load(url: imagePath, size: .square_medium, mime: imagePathExtension, completion: nil)
+        } else {
+            imgAvatar.image = #imageLiteral(resourceName: "img_logo")
+        }
     }
     
-    
 }
+ 
